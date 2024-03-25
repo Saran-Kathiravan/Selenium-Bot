@@ -6,6 +6,7 @@ from selenium.webdriver.common.keys import Keys
 import os
 import time
 import booking.constants as const
+from selenium.common.exceptions import NoSuchElementException
 
 class Booking(webdriver.Firefox):
     def __init__(self,driver_path=r"C:\Users\saran\Downloads\Firefox_Selenium",teardown=False):
@@ -43,7 +44,7 @@ class Booking(webdriver.Firefox):
     def change_currency(self,currency=None):
         currency_element=self.find_element(By.CSS_SELECTOR,'button[data-testid="header-currency-picker-trigger"]')
         currency_element.click()
-        currency_button = self.find_element(By.XPATH,"//button[.//div[text()='" + currency + "']]")
+        currency_button = self.find_element(By.XPATH,"//button[.//div[text()='" +currency+ "']]")
         currency_button.click()
 
 
@@ -54,10 +55,40 @@ class Booking(webdriver.Firefox):
         search_field.send_keys(destination)
 
         time.sleep(1)
-        
+
         first_result=self.find_element(By.ID,"autocomplete-result-0")
         first_result.click()
+        
+        
+    def select_dates(self, check_in_date, check_out_date):
+        check_in_element = self.find_element(By.CSS_SELECTOR,'span[data-date="'+check_in_date+'"]')
+        check_in_element.click()
 
-       
+        check_out_element = self.find_element(By.CSS_SELECTOR,'span[data-date="'+check_out_date+'"]')
+        check_out_element.click()
+    
+    def number_of_occupants(self,adults):
+        occupancy_button = self.find_element(By.CSS_SELECTOR,'button[data-testid="occupancy-config"]')
+        occupancy_button.click()
 
+        adult_division = self.find_element(By.XPATH,'//div[input[@id="group_adults"]]')        
+        decrease_adults = adult_division.find_element(By.CLASS_NAME,"e91c91fa93")
 
+        while True:
+
+            decrease_adults.click()
+            adult_input=self.find_element(By.CSS_SELECTOR,'input[id="group_adults"]')
+
+            current_adults=adult_input.get_attribute('value')
+
+            if int(current_adults)==1:
+                break
+            
+        increase_adults=adult_division.find_element(By.CLASS_NAME,"f4d78af12a")
+
+        for _ in range(adults-1):
+            increase_adults.click()
+
+    def click_search(self):
+        search_button = self.find_element(By.CSS_SELECTOR,'button[type="submit"]')
+        search_button.click()
