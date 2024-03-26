@@ -14,7 +14,7 @@ class Booking(webdriver.Firefox):
         self.teardown = teardown
         os.environ["PATH"]+=self.driver_path
         super(Booking,self).__init__()
-        self.implicitly_wait(15)
+        # self.implicitly_wait(5)
         self.maximize_window()
     
     def __exit__(self, exc_type: type[BaseException] | None, exc: BaseException | None, traceback: TracebackType | None):
@@ -23,13 +23,6 @@ class Booking(webdriver.Firefox):
 
     def land_first_page(self):
         self.get(const.BASE_URL)
-
-    def close_popup(self):
-        try:
-            no_button = self.find_element(By.CSS_SELECTOR,'button[aria-label="Dismiss sign-in info."]')
-            no_button.click()
-        except:
-            print('No element with this class name. Skipping ....')
 
     def check_currency(self,currency=None):
         currency_element=self.find_element(By.CSS_SELECTOR,'button[data-testid="header-currency-picker-trigger"]')
@@ -58,6 +51,15 @@ class Booking(webdriver.Firefox):
 
         first_result=self.find_element(By.ID,"autocomplete-result-0")
         first_result.click()
+        
+    def check_availability(self):
+        try:
+            # Check if the div element with data-testid="searchbox-datepicker" exists
+            searchbox_datepicker_div = self.find_element(By.XPATH,"//div[@data-testid='searchbox-datepicker']")
+            print("Div with data-testid='searchbox-datepicker' found on the page.")
+        except NoSuchElementException:
+            date_picker=self.find_element(By.XPATH,'//div[div[@data-testid="searchbox-dates-container"]]')
+            date_picker.click()
         
         
     def select_dates(self, check_in_date, check_out_date):
