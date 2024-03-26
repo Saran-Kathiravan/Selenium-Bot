@@ -5,9 +5,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import os
 import time
+from prettytable import PrettyTable
+
 from selenium.common.exceptions import NoSuchElementException
+
 from booking.booking_filters import BookingFilter
+from booking.booking_report import BookingReport
 import booking.constants as const
+from booking.popup_closer import close_popup
 
 class Booking(webdriver.Firefox):
     def __init__(self,driver_path=r"C:\Users\saran\Downloads\Firefox_Selenium",teardown=False):
@@ -23,13 +28,6 @@ class Booking(webdriver.Firefox):
 
     def land_first_page(self):
         self.get(const.BASE_URL)
-
-    def close_popup(self):
-        try:
-            no_button = self.find_element(By.CSS_SELECTOR,'button[aria-label="Dismiss sign-in info."]')
-            no_button.click()
-        except:
-            print('No element with this class name. Skipping ....')
 
     def check_currency(self,currency=None):
         currency_element=self.find_element(By.CSS_SELECTOR,'button[data-testid="header-currency-picker-trigger"]')
@@ -65,7 +63,7 @@ class Booking(webdriver.Firefox):
         try:
             # Check if the div element with data-testid="searchbox-datepicker" exists
             searchbox_datepicker_div = self.find_element(By.XPATH,"//div[@data-testid='searchbox-datepicker']")
-            print("Div with data-testid='searchbox-datepicker' found on the page.")
+            # print("Div with data-testid='searchbox-datepicker' found on the page.")
         except NoSuchElementException:
             date_picker=self.find_element(By.XPATH,'//div[div[@data-testid="searchbox-dates-container"]]')
             date_picker.click()
@@ -108,5 +106,16 @@ class Booking(webdriver.Firefox):
     def apply_filters(self):
         filter=BookingFilter(driver=self)
         self.implicitly_wait(5)
+        close_popup(self)
         filter.apply_star_rating(3,4,5)
+        close_popup(self)
         filter.sort_bt_price()
+
+    def report_results(self):
+        hotel_boxes_section = self.find_element(By.CLASS_NAME,'d4924c9e74')
+        report=BookingReport(hotel_boxes_section)
+
+        table=PrettyTable(field_names=['Hotel Name','Price','Rating'])
+        table.add_rows(report.pull_hotel_data())
+
+        print(table)
