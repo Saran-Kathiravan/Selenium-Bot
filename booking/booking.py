@@ -5,8 +5,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import os
 import time
-import booking.constants as const
 from selenium.common.exceptions import NoSuchElementException
+from booking.booking_filters import BookingFilter
+import booking.constants as const
 
 class Booking(webdriver.Firefox):
     def __init__(self,driver_path=r"C:\Users\saran\Downloads\Firefox_Selenium",teardown=False):
@@ -14,7 +15,6 @@ class Booking(webdriver.Firefox):
         self.teardown = teardown
         os.environ["PATH"]+=self.driver_path
         super(Booking,self).__init__()
-        # self.implicitly_wait(5)
         self.maximize_window()
     
     def __exit__(self, exc_type: type[BaseException] | None, exc: BaseException | None, traceback: TracebackType | None):
@@ -23,6 +23,13 @@ class Booking(webdriver.Firefox):
 
     def land_first_page(self):
         self.get(const.BASE_URL)
+
+    def close_popup(self):
+        try:
+            no_button = self.find_element(By.CSS_SELECTOR,'button[aria-label="Dismiss sign-in info."]')
+            no_button.click()
+        except:
+            print('No element with this class name. Skipping ....')
 
     def check_currency(self,currency=None):
         currency_element=self.find_element(By.CSS_SELECTOR,'button[data-testid="header-currency-picker-trigger"]')
@@ -51,6 +58,8 @@ class Booking(webdriver.Firefox):
 
         first_result=self.find_element(By.ID,"autocomplete-result-0")
         first_result.click()
+
+        time.sleep(1)
         
     def check_availability(self):
         try:
@@ -94,3 +103,10 @@ class Booking(webdriver.Firefox):
     def click_search(self):
         search_button = self.find_element(By.CSS_SELECTOR,'button[type="submit"]')
         search_button.click()
+        time.sleep(1)
+    
+    def apply_filters(self):
+        filter=BookingFilter(driver=self)
+        self.implicitly_wait(5)
+        filter.apply_star_rating(3,4,5)
+        filter.sort_bt_price()

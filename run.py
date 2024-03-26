@@ -14,10 +14,15 @@ with Booking() as bot:
     inr=bot.check_currency(currency)
     if not inr:
         bot.change_currency(currency)
+    bot.close_popup()
     bot.select_destination(destination)
+    bot.close_popup()
     bot.check_availability()
     bot.select_dates(check_in_date,check_out_date)
+    bot.close_popup()    
     bot.number_of_occupants(adults)
     bot.click_search()
+    bot.close_popup()
+    bot.apply_filters()
 
     
