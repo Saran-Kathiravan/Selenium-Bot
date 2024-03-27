@@ -1,7 +1,6 @@
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from booking.popup_closer import close_popup
-import time
 
 
 class BookingFilter:
@@ -22,7 +21,6 @@ class BookingFilter:
                     close_popup(self)
 
     def sort_bt_price(self):
-        time.sleep(2)
         sort_by=self.driver.find_element(By.CSS_SELECTOR,'button[data-testid="sorters-dropdown-trigger"]')
         sort_by.click()
         lower_price=self.driver.find_element(By.CSS_SELECTOR,'button[data-id="price"]')
